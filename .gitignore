@@ -1,0 +1,23 @@
+.ipynb_checkpoints/
+*.egg-info/
+__pycache__
+.DS_Store
+
+data/processed/*
+data/raw/*
+
+experiments/figures/*
+
+# Backup to catch any known data file types that should not be committed.
+*.bed
+*.bam
+*.tsv
+*.bed.gz
+*.bed.gz.tbi
+*.pkl
+*.h5
+*.broadPeak
+*.wig
+
+config.toml
+!**/README.md
