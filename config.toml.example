@@ -1,2 +1,3 @@
 [executables]
 liftOver_exe = ""
+bedtools_exe = ""

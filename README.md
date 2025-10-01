@@ -1,7 +1,7 @@
 # multimodal-dimelo
 multmodal DiMeLo-seq (for paper)
 
-## install
+## Installation
 
 Clone this repo.
 ```
@@ -27,7 +27,7 @@ conda activate multimodal_dimelo
 
 Install python dependencies and this package with pip. This will bring in the latest dimelo package as well as some other required libraries.
 ```
-pip install -e .
+pip install .
 ```
 
 Finally, configure this repo to reflect your working environment.
@@ -35,3 +35,13 @@ Finally, configure this repo to reflect your working environment.
 cp config.toml.example config.toml
 ```
 Then open `config.toml` and update the empty entries with appropriate paths, etc. for your system. As an example, provide the path to the executable for the UCSC liftOver tool.
+
+## Other required tools
+TODO: Come back here and clean this up / add links
+
+The following are also required:
+* UCSC toolkit
+* bedtools
+
+# TODO:
+The current implementation of package installation is mildly broken, possibly due to deprication of `setup.py` by pip and setuptools. This needs to be resolved eventually, but can be worked around for now. To fix it, I have decided to collapse the file structure.
