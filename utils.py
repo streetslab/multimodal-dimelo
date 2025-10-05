@@ -182,19 +182,27 @@ def split_bed_by_quantiles(
     table: pd.DataFrame,
     column: str,
     q: int,
-    dataset_id: str
+    dataset_id: str,
+    avoid_duplicates: bool=False
 ) -> None:
     """
     Split a given bed into the desired number of quantiles, then write the resulting bed subsets to files.
 
     Makes a directory based on the dataset id in the processed data directory. Files are named after their quantile index.
+
+    Args:
+    * avoid_duplicates: if True, uses pd.DataFrame.rank to ensure there are no duplicate boundaries
     """
     output_dir = config.processed_data_dir / dataset_id
     output_dir.mkdir(exist_ok=True)
 
     labels = [str(i + 1) for i in range(q)]
 
-    quantile_assignments = pd.qcut(table[column], q=q, labels=labels)
+    if avoid_duplicates:
+        s = table[column].rank(method="first")
+    else:
+        s = table[column]
+    quantile_assignments = pd.qcut(s, q=q, labels=labels)
 
     # In this case, observed True or False should not make a difference, but specifying True to squash FutureWarnings    
     for qidx, qgroup in table.groupby(quantile_assignments, observed=True):
