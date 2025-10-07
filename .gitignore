@@ -6,7 +6,7 @@ __pycache__
 data/processed/*
 data/raw/*
 
-experiments/figures/*
+figures/*
 
 # Backup to catch any known data file types that should not be committed.
 *.bed
