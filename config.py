@@ -7,6 +7,8 @@ working_dir = Path(__file__).parent.resolve()
 data_dir = working_dir / "data"
 raw_data_dir = data_dir / "raw"
 processed_data_dir = data_dir / "processed"
+# Figures
+figure_dir = working_dir / "figures"
 
 ## Load user-defined vars from TOML file
 try:
