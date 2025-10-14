@@ -1,4 +1,6 @@
 [executables]
 liftOver_exe = ""
+bigWigToBedGraph_exe = ""
+bedGraphToBigWig_exe = ""
 bedtools_exe = ""
 samtools_exe = ""

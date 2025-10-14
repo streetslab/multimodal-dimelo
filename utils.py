@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 import gzip
 import shutil
 import subprocess
@@ -25,10 +24,15 @@ def save_file_from_url(source_url: str) -> Path:
     response = requests.get(source_url)
 
     try:
-        file_name = next(iter(re.findall("filename=(.+)", response.headers["content-disposition"])))
+        # TODO: This currently assumes that filename is always the second entry in the header; consider searching for "filename" instead
+        header = response.headers["content-disposition"]
     except KeyError:
         # default to generating file name manually from the source url
         file_name = source_url.split("/")[-1]
+    else:
+        # This worked for a long time but needed to fix it due to NCBI responses
+        # file_name = next(iter(re.findall("filename=(.+)", header)))
+        file_name = header.split(";")[1].split("=")[1].strip('"')
     
     destination_file = config.raw_data_dir / file_name
     
@@ -55,6 +59,7 @@ def gunzip(gz_file: Path) -> Path:
 
     return unzipped_file
 
+
 def lift_over(
     old_file: Path,
     file_format: str,
@@ -64,8 +69,7 @@ def lift_over(
     """
     Run the UCSC liftOver tool on the given inputs.
 
-    Needs to be in bed or gff format. Need to specify format manually because some downloaded files have non-standard names.
-
+    Needs to be in bed, gff, or bedGraph format. Need to specify format manually because some downloaded files have non-standard names.
 
     Return a Path to the resulting lifted-over file.
     """    
@@ -77,8 +81,10 @@ def lift_over(
             cmd_args.append("-bedPlus=6")
         case "gff":
             cmd_args.append("-gff")
+        case "bedGraph":
+            pass
         case _:
-            raise ValueError("Format must be one of the strings 'bed' or 'gff'")
+            raise ValueError("Format must be one of the strings 'bed', 'gff', or 'bedGraph'")
     
     new_file = config.processed_data_dir / old_file.with_suffix(f".{new_assembly_desc}.{file_format}").name
     unmapped_file = new_file.with_suffix(f".unmapped.{file_format}")
@@ -103,6 +109,47 @@ def lift_over(
         print(k, v)
 
     return new_file
+
+
+def lift_over_bigWig(
+    old_file: Path,
+    chain_file: Path,
+    chrom_size_file: Path,
+    new_assembly_desc: str,
+) -> Path:
+    """
+    Run the UCSC liftOver tool on a bedgraph file. Separate from the lift_over method because 
+    this is a more involved process with multiple steps.
+
+    Based on instructions from https://bioinfocore.com/blogs/liftover-bigwig-files/.
+    """
+    intermediate_bedgraph = old_file.with_suffix(".bedGraph")
+    # !{ucsc_utils_dir}/bigWigToBedGraph {input_bw} {intermediate_bedgraph}
+    subprocess.run(
+        [config.user_config["executables"]["bigWigToBedGraph_exe"], old_file, intermediate_bedgraph],
+        check=True
+    )
+    lifted_bedgraph = lift_over(intermediate_bedgraph, "bedGraph", chain_file, new_assembly_desc)
+
+    lifted_sorted_bedgraph = lifted_bedgraph.with_suffix(".sorted.bedGraph")
+    # !LC_COLLATE=C sort -k1,1 -k2,2n {lifted_bedgraph} > {lifted_sorted_bedgraph}
+    with lifted_sorted_bedgraph.open("w") as fp:
+        subprocess.run(
+            ["sort", "-k1,1", "-k2,2n", lifted_bedgraph],
+            stdout=fp, encoding="utf-8"
+        )
+    
+    output_bw = lifted_bedgraph.with_suffix(f".bigWig")
+    # !{ucsc_utils_dir}/bedGraphToBigWig {lifted_sorted_bedgraph} {target_reference_id}.chrom.sizes {output_bw}
+    subprocess.run(
+        [config.user_config["executables"]["bedGraphToBigWig_exe"], lifted_sorted_bedgraph, chrom_size_file, output_bw],
+        check=True
+    )
+    
+    intermediate_bedgraph.unlink()
+    lifted_bedgraph.unlink()
+    lifted_sorted_bedgraph.unlink()
+
 
 def load_bed_file(
     bed_file: Path,

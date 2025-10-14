@@ -31,7 +31,10 @@ pip install .
 
 ### Installation and configuration of external tools
 Download and/or install the following:
-* [UCSC liftOver tool](https://hgdownload.soe.ucsc.edu/downloads.html#utilities_downloads)
+* [UCSC tools](https://hgdownload.soe.ucsc.edu/downloads.html#utilities_downloads)
+    * liftOver
+    * bigWigToBedGraph
+    * bedGraphToBigWig
 * [bedtools](https://bedtools.readthedocs.io/en/latest/)
 * [samtools](https://www.htslib.org/)
 
