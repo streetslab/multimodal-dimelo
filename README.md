@@ -1,5 +1,5 @@
 # multimodal-dimelo
-multmodal DiMeLo-seq (for paper)
+Code to accompany the manuscript *Integrated analysis of multimodal long-read epigenetic assays* (Marcus, Dixon-Luinenburg et al.)
 
 ## Installation
 
@@ -45,12 +45,17 @@ cp config.toml.example config.toml
 ```
 Then open `config.toml` and update the empty entries with appropriate paths to the executables for your system (e.g. `/usr/bin/bedtools`)
 
+# Obtaining data
+Basecalled and aligned data in BAM format from this study are currently available by request; see the manuscript for details.
+
+Downloaded BAM files should be placed in `multimodal-dimelo/data/processed`.
+
 # Running analysis
 
-TODO: This needs to include basecalling and/or data download instructions for the BAMs, maybe?
-
-To regenerate the figures for this manuscript, first run third_party_data.ipynb to download all necessary data and perform necessary processing to generate reference files (e.g. BEDs).
+To regenerate the figures for this manuscript, first run `third_party_data.ipynb` to download all necessary data and perform necessary processing to generate reference files (e.g. BEDs).
 
 Then run any of the analysis notebooks in any order:
-1. CTCF_analysis.ipynb
-2. LMNB1_analysis.ipynb
+1. `CTCF_analysis.ipynb`
+2. `LMNB1_analysis.ipynb`
+3. `crosstalk_analysis.ipynb`
+4. `motif_analysis.ipynb`
