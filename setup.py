@@ -5,6 +5,6 @@ setup(
     version="0.0.1alpha",
     packages=find_packages(),
     install_requires=[
-        'dimelo @ git+https://github.com/streetslab/dimelo.git',
+        'dimelo @ git+https://github.com/streetslab/dimelo-toolkit.git',
     ],
 )
