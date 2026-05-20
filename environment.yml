@@ -6,3 +6,4 @@ channels:
 dependencies:
   - python=3.11
   - nanoporetech::modkit==0.2.4
+  - scipy=1.17.0
