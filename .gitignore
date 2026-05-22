@@ -18,6 +18,7 @@ figures/*
 *.h5
 *.broadPeak
 *.wig
+*.fai
 
 config.toml
 !**/README.md
