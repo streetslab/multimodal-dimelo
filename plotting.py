@@ -7,7 +7,8 @@ _base_palette = sns.color_palette()
 default_palette_map = {
     "A,0": _base_palette[0], # blue (31, 119, 180) (1F77B4)
     "WCG,1": _base_palette[3], # red (214, 39, 40) (D62728)
-    "GCH,1": _base_palette[2] # green (44, 160, 44) (2CA02C)
+    "GCH,1": _base_palette[2], # green (44, 160, 44) (2CA02C)
+    "WCG,1,h": _base_palette[1]
 }
 
 def encode_narrowpeak_bed_qc(table: pd.DataFrame) -> None:
