@@ -1,12 +1,20 @@
+from __future__ import annotations
+
 from pathlib import Path
 import gzip
 import shutil
 import subprocess
 from collections import Counter
+import contextlib
+import functools
+import json
+import threading
+import time
 
 import requests
 import numpy as np
 import pandas as pd
+import psutil
 
 import config
 
@@ -344,3 +352,125 @@ def score_peaks_by_distance(
     source_peak_distances = pd.concat(chrom_distance_vectors)
 
     return source_peak_table.assign(signalValue=source_peak_distances)
+
+"""Lightweight wall-time + peak-memory tracking for reproducibility reporting.
+
+Measures the whole process tree (this process + all descendants), so it
+correctly captures memory used by subprocesses -- including multi-threaded
+compiled binaries (Rust/C) invoked via subprocess, and multi-process Python
+workers.
+
+Requires psutil:  pip install psutil
+
+Usage
+-----
+# As a context manager:
+    with track("pileup"):
+        parse_bam.pileup(...)
+
+# As a decorator (label defaults to the function name):
+    @track(log_path="perf.jsonl")
+    def run_pileup(...):
+        parse_bam.pileup(...)
+
+# Reading the numbers back out:
+    with track("extract", quiet=True) as t:
+        parse_bam.extract(...)
+    print(t.elapsed, t.peak_gb)
+"""
+
+class track(contextlib.ContextDecorator):
+    """Track wall-clock time and peak resident memory of the process tree.
+
+    Parameters
+    ----------
+    label : str, optional
+        Name for this measurement. When used as a decorator and left as None,
+        defaults to the wrapped function's name.
+    interval : float
+        Polling interval in seconds. Smaller catches briefer spikes at a small
+        CPU cost. 0.05 is fine for minute-scale jobs.
+    log_path : str | Path, optional
+        If given, append one JSON line per measurement to this file.
+    quiet : bool
+        If True, don't print a summary line on exit.
+    """
+
+    def __init__(self, label=None, *, interval=0.05, log_path=None, quiet=False):
+        self.label = label
+        self.interval = interval
+        self.log_path = Path(log_path) if log_path else None
+        self.quiet = quiet
+
+    # Let the decorator form pick up the function name as the default label.
+    def __call__(self, func):
+        if self.label is None:
+            self.label = func.__name__
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with self._fresh() as m:
+                result = func(*args, **kwargs)
+            # expose last measurement on the wrapper for convenience
+            wrapper.last = m
+            return result
+
+        return wrapper
+
+    # Each `with` / call gets its own state so repeated use is independent.
+    def _fresh(self):
+        return track(
+            label=self.label,
+            interval=self.interval,
+            log_path=self.log_path,
+            quiet=self.quiet,
+        )
+
+    def _tree_rss(self):
+        total = self._proc.memory_info().rss
+        for child in self._proc.children(recursive=True):
+            try:
+                total += child.memory_info().rss
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        return total
+
+    def _poll(self):
+        while not self._stop.is_set():
+            self.peak_bytes = max(self.peak_bytes, self._tree_rss())
+            self._stop.wait(self.interval)
+
+    def __enter__(self):
+        self._proc = psutil.Process()
+        self.peak_bytes = self._tree_rss()
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._poll, daemon=True)
+        self._thread.start()
+        self._t0 = time.perf_counter()
+        return self
+
+    def __exit__(self, *exc):
+        self.elapsed = time.perf_counter() - self._t0
+        self._stop.set()
+        self._thread.join()
+        # final sample, in case the peak occurred right before exit
+        self.peak_bytes = max(self.peak_bytes, self._tree_rss())
+        self.peak_gb = self.peak_bytes / 1e9        # decimal GB
+        self.peak_gib = self.peak_bytes / 2 ** 30   # binary GiB
+
+        if not self.quiet:
+            print(f"[perf] {self.label}: {self.elapsed:.1f}s  "
+                  f"peak {self.peak_gb:.2f} GB")
+
+        if self.log_path:
+            rec = {
+                "label": self.label,
+                "seconds": round(self.elapsed, 3),
+                "peak_gb": round(self.peak_gb, 4),
+                "peak_gib": round(self.peak_gib, 4),
+                "timestamp": time.time(),
+            }
+            with open(self.log_path, "a") as f:
+                f.write(json.dumps(rec) + "\n")
+
+        return False  # don't suppress exceptions
