@@ -1,8 +1,15 @@
 font.family : Arial
+font.size : 8
+
 axes.titlesize : 10
-legend.fontsize : 9
 axes.labelsize : 9
+
+legend.fontsize : 9
+
 xtick.labelsize : 9
 ytick.labelsize : 9
+
 figure.constrained_layout.wspace: 0.1
 figure.constrained_layout.hspace: 0.1
+
+savefig.bbox : tight
