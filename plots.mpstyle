@@ -9,7 +9,7 @@ legend.fontsize : 9
 xtick.labelsize : 9
 ytick.labelsize : 9
 
-figure.constrained_layout.wspace: 0.1
-figure.constrained_layout.hspace: 0.1
+figure.constrained_layout.wspace: 0.01
+figure.constrained_layout.hspace: 0.01
 
 savefig.bbox : tight
