@@ -80,7 +80,7 @@ def lift_over(
     Needs to be in bed, gff, or bedGraph format. Need to specify format manually because some downloaded files have non-standard names.
 
     Return a Path to the resulting lifted-over file.
-    """    
+    """
     cmd_args = [config.user_config["executables"]["liftOver_exe"]]
 
     match file_format:
@@ -158,10 +158,46 @@ def lift_over_bigWig(
     lifted_bedgraph.unlink()
     lifted_sorted_bedgraph.unlink()
 
+    return output_bw
+
+
+def lift_over_vcf(
+    old_file: Path,
+    chain_file: Path,
+    reference_file: Path,
+    new_assembly_desc: str,
+) -> Path:
+    """
+    Run the picard LiftoverVcf tool on the given inputs.
+
+    Return a Path to the resulting lifted-over file.
+    """    
+    """
+    java -jar picard.jar LiftoverVcf I=input.vcf O=lifted_over.vcf CHAIN=b37tohg38.chain REJECT=rejected_variants.vcf R=reference_sequence.fasta
+    """
+    new_file = config.processed_data_dir / old_file.with_suffix(f".{new_assembly_desc}.vcf.gz").name
+    rejected_file = new_file.with_suffix(".rejected_variants.vcf.gz")
+    _ = subprocess.run(
+        [
+            "java", "-jar", config.user_config["executables"]["picard_jar"], "LiftoverVcf",
+            "-I", old_file, "-O", new_file, "-CHAIN", chain_file, "-REJECT", rejected_file, "-R", reference_file,
+            "-QUIET", "true", "--RECOVER_SWAPPED_REF_ALT", "true"
+        ],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+    return new_file
+
+
+def index_reference_picard(
+    reference_file: Path
+) -> Path:
+    _ = subprocess.run(["java", "-jar", config.user_config["executables"]["picard_jar"], "CreateSequenceDictionary", "-QUIET", "true", "-R", reference_file])
+    return reference_file.with_suffix(".dict")
+
 
 def load_bed_file(
     bed_file: Path,
-    extra_columns: list = None
+    extra_columns: list | None = None
 ) -> pd.DataFrame:
     """
     Loads a bed file. Expected to be BED6+ format.
@@ -323,7 +359,7 @@ def apply_bed_offset(
         chromEnd=new_starts_ends["chromEnd"],
     )
 
-def bed_peak_centers(table: pd.DataFrame) -> pd.Series:
+def bed_peak_centers(table: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate the center of the peaks from the given bed file table.
 

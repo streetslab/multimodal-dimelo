@@ -37,7 +37,8 @@ Download and/or install the following:
     * bedGraphToBigWig
 * [bedtools](https://bedtools.readthedocs.io/en/latest/)
 * [samtools](https://www.htslib.org/)
-
+* [picard](https://broadinstitute.github.io/picard/)
+* [WhatsHap](https://whatshap.readthedocs.io/en/latest/)
 
 To configure this repository to reflect your working environment, first copy the example configuration file:
 ```
@@ -47,6 +48,20 @@ Then open `config.toml` and update the empty entries with appropriate paths to t
 
 # Obtaining data
 Basecalled and aligned data in BAM format from this study are currently available by request; see the manuscript for details.
+
+Once obtained, all BAMs must be indexed using `samtools index`.
+
+BAM list:
+* multimodal_CTCF.bam
+* multimodal_CTCF.haplotagged_1.bam
+* multimodal_CTCF.haplotagged_2.bam
+* barcode10_2hrGpC.bam
+* barcode11_15minGpC.bam
+* barcode12_NanoNOMeGpC.bam
+* barcode13_noGpC.bam
+* barcode20_untreated.bam
+* barcode22_GpC.bam
+* barcode24_LMNB1_GpC.bam
 
 Downloaded BAM files should be placed in `multimodal-dimelo/data/processed`.
 
