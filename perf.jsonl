@@ -81,3 +81,11 @@
 {"label": "plot_enrichment_profile.by_modification.hp1_hp2_chrX", "seconds": 1.242, "peak_gb": 7.2551, "peak_gib": 6.7569, "timestamp": 1790980675.6699626}
 {"label": "plot_enrichment_profile.by_modification.hp1_hp2_chrX", "seconds": 1.267, "peak_gb": 7.4012, "peak_gib": 6.8929, "timestamp": 1790980701.4429212}
 {"label": "plot_enrichment_profile.by_modification.hp1_hp2_chrX", "seconds": 1.215, "peak_gb": 3.2759, "peak_gib": 3.0509, "timestamp": 1790980753.505894}
+{"label": "read_vectors_from_hdf5.multimodal_CTCF.gm12878_ctcf_motif_intersect_chip.top3k", "seconds": 13.684, "peak_gb": 2.4803, "peak_gib": 2.3099, "timestamp": 1791071029.0225775}
+{"label": "read_vectors_from_hdf5.barcode24_LMNB1_GpC.on_target", "seconds": 40.98, "peak_gb": 5.117, "peak_gib": 4.7656, "timestamp": 1791071083.0389273}
+{"label": "read_vectors_from_hdf5.barcode24_LMNB1_GpC.off_target", "seconds": 61.887, "peak_gb": 6.0558, "peak_gib": 5.6399, "timestamp": 1791071144.9401429}
+{"label": "read_vectors_from_hdf5.multimodal_CTCF.gm12878_ctcf_motif_intersect_chip.top3k", "seconds": 152.871, "peak_gb": 11.1138, "peak_gib": 10.3506, "timestamp": 1791071226.9388309}
+{"label": "plot_enrichment.barcode24_LMNB1_GpC.main_text", "seconds": 45.378, "peak_gb": 5.674, "peak_gib": 5.2843, "timestamp": 1791419600.1598227}
+{"label": "read_vectors_from_hdf5.barcode24_LMNB1_GpC.on_target", "seconds": 40.972, "peak_gb": 5.1408, "peak_gib": 4.7877, "timestamp": 1791419641.6063542}
+{"label": "read_vectors_from_hdf5.barcode24_LMNB1_GpC.off_target", "seconds": 59.28, "peak_gb": 6.0803, "peak_gib": 5.6627, "timestamp": 1791419701.0076182}
+{"label": "read_vectors_from_hdf5.multimodal_CTCF.gm12878_ctcf_motif_intersect_chip.top3k", "seconds": 148.368, "peak_gb": 11.1123, "peak_gib": 10.3491, "timestamp": 1791420360.858397}
