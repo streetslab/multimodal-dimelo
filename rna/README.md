@@ -1,3 +1,41 @@
+# Direct RNA data manifest
+
+`multimodal-dimelo/direct_rna.ipynb` generates the direct-RNA (m6A / pseudouridine) figures using only paths inside this repo. All of its inputs live under a single folder, `multimodal-dimelo/data/direct_rna/`, which is git-ignored. To run the notebook on another machine, copy that whole folder (about 28 GB) into the same place in a clone of this repo. On the machine where it was assembled, the entries in this folder are **symlinks** to the original files, so the transfer command must dereference them (`rsync -L` / `scp -r`; plain `rsync -a` would copy only the links):
+
+```
+rsync -avPL <source>/multimodal-dimelo/data/direct_rna/ <dest>/multimodal-dimelo/data/direct_rna/
+# or: scp -r <source>/multimodal-dimelo/data/direct_rna <dest>/multimodal-dimelo/data/
+```
+
+The notebook also needs `config.toml` (copy `config.toml.example`; the executable paths are unused here) and the `dimelo` environment plus `kaleido` for the plotly SVG export. Figures are written to `figures/`.
+
+```
+data/direct_rna/
+├── raw/
+│   ├── hs1-rDNA_v1.0.fa                                          3.2 GB
+│   └── hs1-rDNA_v1.0.fa.fai
+└── processed/
+    ├── basecalled_m6A_pseU.splice.hs1-rDNA_v1.0.sorted.bam       25 GB
+    ├── basecalled_m6A_pseU.splice.hs1-rDNA_v1.0.sorted.bam.bai
+    ├── hs1_stop_codons_high_confidence.bed                       2.8 MB
+    ├── chr1_R_pileup_spliced/                                    77 MB
+    │   ├── pileup.sorted.bed.gz
+    │   ├── pileup.sorted.bed.gz.tbi
+    │   └── regions.processed.bed
+    ├── stop_codon_pileup_spliced/                                197 MB
+    │   ├── pileup.sorted.bed.gz
+    │   ├── pileup.sorted.bed.gz.tbi
+    │   └── regions.processed.bed
+    └── rDNA_rrnas/                                               11 MB
+        ├── reads.combined_basemods.h5
+        └── regions.processed.bed
+```
+
+The notebook plots from the pileup / h5 outputs. The BAM and reference are only read by the `parse_bam.pileup` / `parse_bam.extract` calls that regenerate those outputs, which are commented out in the notebook. If you only need to reformat the figures, you can skip `hs1-rDNA_v1.0.fa*` and the `.bam`/`.bam.bai` (about 28 GB) and transfer just the roughly 290 MB of pileup / h5 / bed files.
+
+Provenance of each file (reference genome, Dorado versions, realignment, stop-codon BED) is described below.
+
+
 # Direct RNA / ribosomal RNA base modification figures
 
 Handoff copy of the scripts and notebook used to generate the paper's direct-RNA

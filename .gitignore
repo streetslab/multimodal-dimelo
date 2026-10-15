@@ -5,6 +5,7 @@ __pycache__
 
 data/processed/*
 data/raw/*
+data/direct_rna/*
 review_data/*
 single_read_supp/*
 .vscode/*
