@@ -16,3 +16,11 @@ The following settings are encoded in the scripts themselves and mentioned in th
 * **filtering settings**:
   * **mean qscore threshold**: `qscore > 10`
   * **minimap2 mapq threshold**: `mapq == 60` (uniquely mapping reads only)
+
+## Direct RNA (m6A / pseU)
+The direct-RNA data (RNA004, HEK293T) is processed with Dorado **0.7.2** and samtools by `drna_basecalling.sh`. Before running, download the Dorado 0.7.2 release (linux-x64) from https://github.com/nanoporetech/dorado/releases and unpack it, then download the basecalling model into its `bin/` directory (`cd dorado-0.7.2-linux-x64/bin && ./dorado download --model rna004_130bps_sup@v5.0.0`). The m6A and pseU modification models are fetched automatically next to it on the first run (internet access needed). Edit the path variables at the top of the script (`DORADO_DIR`, `DORADO_MODEL`, `DRNA_DIR`, and the reference genome paths), then run it. It:
+* downloads the public POD5 data (~560 GB)
+* basecalls with model `rna004_130bps_sup@v5.0.0`, `--modified-bases m6A pseU --estimate-poly-a`, aligned to `chm13v2.0.fa`
+* realigns the primary reads (`samtools view -F 0x900`) with `--mm2-preset splice:hq` to the hs1 + rDNA (`chrR`) genome from George, Pimkin & Paralkar, *JBC* 2023. Clone https://github.com/vikramparalkar/rDNA-Mapping-Genomes and use `Human_hs1-rDNA_genome_v1.0/hs1-rDNA_v1.0.fa` (extract the `.tar.gz` if needed).
+
+The final BAM (`basecalled_m6A_pseU.splice.hs1-rDNA_v1.0.sorted.bam`) is the one used by `direct_rna.ipynb`.
